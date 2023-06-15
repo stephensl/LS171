@@ -37,12 +37,14 @@
 
 # Encapsulation
   Encapsulation is a key concept in understanding how network communication happens among different layers and protocols. 
+    - means by which protocols at different layers can work together.
   
   - Each layer encapsulates data from the layer above as its data payload, and packages it as PDU for the layer below. 
 
   - Encapsulation provides separation of layers, as they do not need to know anything about the other layers, only that they need to encapsulate some data received from the layer above and provide the result of the encapsulation to the layer below. 
 
     - Lower layer provides a "service" to the layer above. 
+
 
 
 
