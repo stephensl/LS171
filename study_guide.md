@@ -2,6 +2,8 @@
 
   ## The Internet 
 
+    - Network infrastructure (devices, routers, switches, cables)
+    - Protocols (allows infrastructure to function)
   
   ### Mental Model of what internet is, and how it works. 
 
@@ -36,11 +38,11 @@
     - converted into signals (electrical, light, radio)
 
   - Two Main Characteristics in terms of performance: 
+    
     - Latency 
       - Measure of the *time* it takes for a data to travel from sender to receiver. 
       - Different types, and together contribute to overall latency of a network connection.
       
-
     - Bandwidth 
       - Measure of *amount* of data that can be sent in a particular unit of time. 
       - varies across the network, not constant. 
@@ -48,28 +50,25 @@
 
 
 
-
-
-  
-  
   ### Lower level protocol functions.
   
+  
+  
   #### Link|Data Link : interface between workings of physical network and more logical layers above. 
-      
 
     - Ethernet Protocol: at Data Link/Link layer 
       - defines how devices on network are identified (MAC Addresses)
       - how data should be formatted for transmission (Ethernet frames)
       - focus is communication between devices on the same local network.
 
-     - Frames: 
+     - Frames: key components are Source and Destination MAC addresses and Data Payload 
         - PDU encapsulates data from Internet/Network layer. 
         - physical layer is stream of bits
           - ethernet frame structures bits logically 
             - defines which bits are payload, and which are metadata for transporting frame. 
-            - key components are Source and Destination MAC addresses and Data Payload 
 
     Ethernet provides a bridge between the physical infrastructure of the network and the higher-level protocols that handle tasks like routing data to the correct destination (the network layer), ensuring reliable transmission (the transport layer), and managing applications' network connections (the application layer).
+
 
 
     #### Internet|Network Layer: facilitate communication between hosts on different networks
@@ -81,7 +80,49 @@
         - Routing capability via IP addressing 
         - Encapsulation of data into packets 
 
+      - IP Addresses 
+        - Logical, unlike MAC Addresses
+        - Assigned as required to devices as they join a network.
+          - Defined by network hierarchy ranges.
+            - Network address: start of range
+              - Used to identify specific network segment.
+                - Similar to central post office looking for district post office.
+                  - Doesn't need to have every house address, just the district that serves houses in that range of addresses.
+                    - Then the central post office routes to correct district, who delivers to individual house. 
+            - Broadcast address: end of range
+            - Addresses between these can be allocated to individual devices on the network.
 
+      - Sub-netting
+        
+        - Splitting network into smaller subnets to create hierarchical tiers for routing.
+          - Like splitting a city into neighborhoods
+            - Each subnet operates as its own smaller network within the larger network. 
+            - Router reads the network address, and sends data to correct neighborhood
+              - Once arrived in correct neighborhood, delivered based on the rest of the IP address (Host Address)
+
+        - Benefits  
+          - Efficiency 
+            - Routers do not need to store info about every device on the network
+              - Only need the subnet information
+              - Lets subnet routers/switches handle the final leg to the target device. 
+          - Reduces network congestion
+            - Local traffic can stay isolated within subnet
+        
+        - Routing and Routing Tables 
+          - All routers on the network store a local routing table. 
+            - When router receives IP packet...
+              - examines destination IP against list of network addresses in routing table. 
+              - matching network address determines where in hierarchy subnet exists
+              - Used to route packet. 
+
+        - IPv4 vs IPv6
+          - IPv4 32 bits in length (4 eight bit sections) logical maximum addresses: 4.3 billion
+          - IPv6 128 bits (eight 16-bit blocks), increases to 340 undecillion.
+            - Different header structure 
+            - Lack of error checking (leaves to Link Layer checksum)
+            - 8 sets of hexadecimal characters, each containing 16 bits of information. The first 4 sets are used to locate a specific network on the internet. The last 4 sets are typically used to identify a particular interface or device within that network.
+
+      *** Being able to transport data from one device to another is not sufficient to ensure that a specific application on the client can access the correct service on the server.**
 
 
       
@@ -89,7 +130,37 @@
 
 
   ### IP addresses and port numbers 
+  
+  - IP addressing can get us as far as the host, but not to particular application/process. 
+    - May have numerous applications running on same machine or a host application that needs information from a particular application on another host. 
+    - We need a way to transmit multiple data inputs (from numerous application sources) over a single host-to-host channel and separate them out at the destination so data is distributed correctly. 
 
+  - Multiplexing and Demultiplexing: 
+    - Multiple applications may need to send data simultaneously. 
+    - Sending multiple signals over a single channel is multiplexing
+      - Receiving a single stream of data and separating it out into multiple streams is demultiplexing. 
+
+  - Ports 
+    - Identifiers for processes running on a host.
+      - Range of 0-65535
+
+    **Source and Destination Port Numbers are included in the PDU for the Transport Layer**
+
+      - Data from application layer is encapsulated as the data payload in this PDU, and the source and destination port numbers within the PDU can be used to direct data to specific processes on a host. 
+
+      - Entire PDU is then encapsulated as data payload in an IP packet.
+        - IP addresses in packet header used to direct data from one host to another. 
+        - Once the packet arrives to host, port numbers used to direct data to specific application. 
+        
+        **The IP Address and Port Number together enables end-to-end communication between specific applications on different devices.**
+          - This combination of IP Address and Port number may be thought of as: 
+            - Communication end point or socket for transfer of data between applications running on hosts. 
+
+      - Socket 
+        - Conceptually:
+          - A communication end-point consisting of an IP Address and Port Number. 
+        - Implementation:
+          - instantiating socket-objects 
 
 
   
@@ -131,6 +202,29 @@
 
 
 
+
+
+
+
+
+<!-- It's Christmas time in Whoville, and Cindy Lou has just received her ceremonial apple during the feast. Little did the other Whovillians know, but Cindy has been on the Keto diet for the past six months, and can't possibly introduce that blood sugar spike to her system. 
+
+In her benevolence, she has decided to send the apple to her ole pal the Grinch as a gesture of goodwill. Her only concern is that the apple will freeze on the way up Mt. Crumpit, and if the Grinch receives a frozen apple, it may be misconstrued as a sign of hostility from the Whos. It is important that the apple reach the Grinch reliably, and free of frost corruption. 
+
+Luckily, the physics of life on a snowflake have enabled fruit products to be transported reliably and securely over the Winternet, which is facilitated by increasingly larger Whoville civil servants.
+
+The main requirement for transport over the Winternet is that the fruit product be processed and packaged appropriately for the journey. Fortunately for Cindy Lou, this can be done from the comfort of her seat at the feast. 
+
+Let's see how this process works and what it teaches us about data moving through layers of a network: 
+
+  - Step 1: Cindy has the apple in her hands. She writes a nice card to accompany the gift, and is ready to send it. The apple and card are arranged nicely, and packaged for transport.  
+
+  This is the Application Layer. We are concerned with the structure of the message and the data it should contain. Cindy is sending the apple to the Grinch as the data payload in a HTTP POST Request. The Grinch acts as the server who will receive the data/resource. The way in which the data is processed is up to the Grinch.
+
+
+  - Step 2: The gift is received by the first helper who whispers some magic words about reliability and in-order delivery before placing the received package in a larger container with information about the 
+
+  This is the Transport Layer -->
 
 
 
