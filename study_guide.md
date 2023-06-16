@@ -20,6 +20,54 @@
 
   This example, of reaching beyond your Local Area Network, and accessing resources from other networks is a simplified function of the internet. The internet is a global system of communication that allows for information sharing to occur between networks. If a network is two or more devices that are connected in a way that facilitates communication, the internet is a network of networks. Inter-network communication occurs when two or more networks are able to share information, and the internet does this on a massive scale. The internet includes the physical and logical infrastructure necessary to allow networks all over the world to connect with each other and share information. 
 
+
+# Mental Model of the Internet 
+
+  - The internet is a "network of networks" 
+  - Allows networks all over the world to connect and share information
+  - Provides the physical and logical infrastructure that enables inter-network communication
+
+
+# Protocols and Why Important
+
+  - Protocols are established and agreed upon rules that support successful communication. 
+    - define how data is formatted, transmitted, received, acknowledged over a network.
+    - ensure that devices can communicate by following the same rules. 
+
+  - Different protocols to address *different aspects* of network communication. 
+    - Syntactical rules governing speech vs flow/order rules governing speech.
+      - TCP/HTTP : different aspects of communication 
+          - TCP: transfer of msg
+          - HTTP: structure of msg
+  
+  - Different protocols to address *same aspect*, but in a different way for specific use case.
+    - Message flow and order
+      - Different protocol depending on context, but same *aspect* of communication. 
+        - Ex. TCP/UDP : both concerned with transferring messages between applications, but do so differently. 
+
+
+# Layer Models 
+  - Used in order to abstract away some of the complexity of network communication and allow us to examine relevant processes in a structured and modular way. 
+
+  - OSI vs TCP/IP
+
+    - OSI: concerned with functions that each layer provides
+      - physical addressing, logical addressing, routing, etc. 
+
+    - TCP/IP: concerned with scope of communication within each layer
+      - within a local network, between networks, etc.
+
+
+# Encapsulation
+  Encapsulation is a key concept in understanding how network communication happens among different layers and protocols. 
+    - means by which protocols at different layers can work together.
+  
+  - Each layer encapsulates data from the layer above as its data payload, and packages it as PDU for the layer below. 
+
+  - Encapsulation provides separation of layers, as they do not need to know anything about the other layers, only that they need to encapsulate some data received from the layer above and provide the result of the encapsulation to the layer below. 
+
+    - Lower layer provides a "service" to the layer above. 
+
    
 
   ### Characteristics of physical network.
@@ -227,13 +275,92 @@
           - improves throughput (amount of work done in given amount of time)
         - balancing reliability and performance
   
-  ### How DNS works.
+  ### How DNS works
+    - Domain Name System 
+      - Distributed database
+        - translates domain name to IP address to be used to make request to server.
+      - DNS Servers
+        - large, hierarchical network
+        - routes to DNS server containing corresponding IP address
+
+    #### DNS Sequence in Web Browser 
+      1. Enter URL like http://google.com in web browser 
+      
+      2. Browser creates HTTP request, packaged and sent to device's network interface. 
+
+      3. If device has record of IP address for domain name in DNS cache, will use cached address. 
+
+      4. If IP address not cached, a DNS request made to Domain Name System for IP address of domain.
+
+      5. Packaged up HTTP request goes over internet to server with matching IP address. 
+
+      6. Server accepts request and sends response over internet back to network interface, which provides it to the browser. 
+
+      7. Browser displays response in form of web page. 
 
 
+      #### HTTP Request Key Point as Text Based Protocol 
+        - When browser issues request, simply sending some text to an IP address. 
+          - Because client (web browser) and server have an agreement/protocol (HTTP) the server can take apart the request, understand its components and send a response back to web browser. 
+        - Web browser then processes response strings into understandable content. 
 
 
+      #### HTTP is a Stateless Protocol 
+        - each request/response pair is completely independent of previous one.
+          - Server does not store information or state between requests
+            - if request breaks en route to server, no cleanup required
+              - HTTP is resilient
+              - HTTP makes it difficult to simulate statefulness in web applications.
+                - Developers must implement semblance of state in other ways, on top of HTTP.
+
+        ##### Stateful Web Applications
+          
+        - Sessions
+
+            - Session Identifier (session id)
+              - unique token issued by server to client
+                - client appends token to requests to allow server to identify client
+                - used as key for accessing stored data on server 
+
+              - server must work hard to simulate stateful experience: 
+                 - check to see if session id included in request
+                 - validate session id 
+                 - retrieve session data based on session id
+                 - recreate application state (HTML for web req) from session data
+                 - send back to client
+              - Server also must implement rules on expiration, and session data storage. 
+              - Every request still gets response, even if nearly identical to previous.
+
+        - Cookies
+            - session id sent to client in form of a cookie (key to access data on server)
+            - piece of data sent from server and stored in client (browser) during RR cycle
+              - Used to store session information and identify client in persistent manner
+           
+           *Actual session data stored on server, but client side cookie is compared to server-side session data on each request to identify the current session.*
+
+
+        - AJAX (Asynchronous JavaScript)
+
+          - Allows browser to issue requests and process responses without a full page refresh.
+
+          - Responses to AJAX requests are processed by a `callback`
+            - piece of logic pass to some function to be executed after a certain event has happened.
+              - in this case, callback is triggered when response is returned
+                - callback that is generating asynchronous requests/responses is updating the HTML
+            
+          - AJAX Key point
+            - AJAX requests are just like normal requests: they are sent to the server with all the normal components of an HTTP request, and the server handles them like any other request. The only difference is that instead of the browser refreshing and processing the response, the response is processed by a callback function, which is usually some client-side JavaScript code.
+            
 
   ### Client/Server Model and role of HTTP in model
+
+    - Client
+      - Most common is Web Browser (though many apps/tools issue HTTP requests)
+        - responsible for issuing HTTP requests and processing HTTP response in user friendly manner
+    - Server 
+      - Devices capable of handling inbound requests
+        - role is to accept the request and issue a response back
+
 
 
 
@@ -350,15 +477,227 @@
 
 
 
+# HTTP 
+  - Functioning of web as combination of multiple technologies.
 
+## Application Layer
+  - Not application itself
+    - Set of protocols providing communication services to applications.  
+      - Protocols at this layer most directly interact with application.
+  
+  ### Primary Concern 
+    - Focus on the structure of the message and data it should contain. 
+      - Relies on lower level protocols to handle establishment and flow of communications.
+        - How message gets from point A to point B
+
+  ### Application Layer Protocols 
+    - Rules for how applications communicate at at syntactical level. 
+      - Many different protocols at Application layer depending on use case. 
+        - HTTP primary protocol for web communications
+
+  #### Internet vs Web
+    - Internet
+      - network of networks
+      - physical infrastructure and protocols that allow infrastructure to function
+        - Ultimate goal is communication between networks.
+    - World Wide Web
+      - *service* accessed via the internet.
+      - vast information system comprised of resources
+        - navigable by URL 
+    **HTTP is primary means for applications to interact with resources that comprise the web**
+
+  
+  #### Web Background/History 
+    - Information system of structured resources connected by hyperlinks. 
+      - Uniformity necessary for: 
+        - rendered viewing
+        - easily located
+        - request standardization 
+      
+      - Initially achieved by combination of HTML, URI, and HTTP.
+
+        - HTML
+          - Hypertext Markup Language
+            - structuring text documents 
+              - used anchor element and href attribute to link to other resources. 
+
+        - URI 
+          - Uniform Resource Identifier
+            - string of characters identifying particular resource.
+
+        - HTTP 
+          - Hypertext Transfer Protocol 
+            - set of rules providing uniformity to transfer of resources between applications.
+              - agreement or message format for how machines communicate with each other. 
+            - Request-Response Protocol 
 
   ## URLs
+    - Uniform Resource Locator 
+      - similar to an house address or phone number needed to communicate with friend
+      - most frequently used aspect of general Uniform Resource Identifier (URI) concept, which specifies how resources located.
+
+    ### URL Components with example: `http://www.example.com:88/home?item=book`
+      * at minimum, must contain scheme and host. 
+
+      - `http:` 
+        - Scheme
+          - tells web client how to access resource
+            - http:
+            - ftp:
+            - mailto:
+            - git: 
+
+      - `www.example.com`
+        - Host
+          - tells client where resource is hosted/located
+
+      - `:88`
+        - Port (assumed to be part of URL)
+          - only required to specify if other than default
+            - Defaults: http(:80) and https(:443)
+
+      - `/home` 
+        - Path (optional)
+          - which local resource is being requested
+          - may point to specific resource on the host
+            - ex. http://www.example.com/home/index.html
+
+      - `?item=book`
+        - Query String (optional)
+          - comprised of Query Parameters 
+          - used to send data to the server
+        
+      #### Query Strings/Parameters 
+        - Usually only used in HTTP GET requests 
+
+        - Example URL: `http://www.example.com?search=ruby&results=10`
+        
+        - `?` indicates start of query string 
+        
+        - `search=ruby` query parameter=value
+        
+        - `&` reserved character, adding more parameters to string
+        
+        - `results=10` query parameter=value
+
+      **Query strings are passed to the server through the URL, how they are utilized is up to server side code**
+
+        - Query String Limitations
+          - max length 
+          - name/value pairs visible in URL
+          - spaces and certain characters cannot be used, or must be URL encoded
+
+      ##### URL Encoding 
+        - URLs designed to only accept certain characters in the standard 128-character ASCII character set. 
+          
+          - Characters must be encoded if: 
+            
+            - No corresponding character within standard ASCII. 
+              - includes all extended ASCII characters, and 2, 3, and 4 byte UTF-8 characters. 
+            
+            - Unsafe character, may be misinterpreted or used to encode other characters
+              - `%` 
+              - spaces
+              - quotation marks
+              - `#` 
+              - `< >`, `{ }`, `[ ]`, `~`, etc.
+
+            - Special characters in URL scheme.
+              - serve a particular purpose and must be encoded
+                - `/`
+                - `?`
+                - `:`
+                - `@`
+                - `&`
+
+            - Safe URL Characters
+              - Alphanumeric
+              - Special Characters
+                - `$`, `-`, `.`, `+`, `!`, `'`, `()`, `"`, `,`
+              - Reserved characters when used for their reserved purpose.
+                - if not being used for reserved purpose, must be encoded.
+
+
+
 
 
 
 
 
   ## HTTP & Request/Response Cycle 
+    
+    Required HTTP Request Components: 
+      - Method
+      - URI (specifies resource via path and can include optional query strings) 
+      - Version of protocol being used.
+
+
+    ### GET Requests
+      - GET requests are used to retrieve a resource, and most links are GETs.
+      - The response from a GET request can be anything, but if it's HTML and that HTML references other resources, your browser will automatically request those referenced resources. A pure HTTP tool will not.
+
+    ### POST Requests
+      - Send or submit data to the server
+        - Ex. username/password, larger files
+          - sensitive data we don't want to include in URL
+      - HTTP Body (optional)
+        - data being transmitted in HTTP message
+          - can contain HTML, images, audio, etc.
+
+    ### Browser Abstraction
+      - hides a lot of underlying HTTP request/response cycle
+        - when loading webpage, will generate GET requests for all elements
+        - when provided `Location` header in HTTP response header, issues `GET` to that location automatically. 
+      - browser provides lots of built-in functionality/abstraction vs simple HTTP tools
+
+
+    ### HTTP Headers
+      - allow client/server to send additional information during RR cycle. 
+        - colon separated name:value pairs in plain text
+
+      - Request Headers 
+        - provide more info about client and resource to be fetched. 
+          - `Host`: domain name of server 
+          - `Accept-Language`: list of acceptable languages
+          - `User-Agent`: string identifying client
+          - `Connection`: type of connection client would prefer
+
+    **Most important components to understand about an HTTP request are:**
+
+      - HTTP method
+      - path (the resource name and any query parameters)
+      - headers
+      - message body (for POST requests)
+
+    ### HTTP Responses 
+      - Data returned by server 
+
+      - Components of HTTP Response
+        
+        - Status Codes
+          - sent by server indicates status of request
+            - 200: OK
+            - 302: FOUND (changed temporarily, usually redirected)
+              - redirect to new URL
+                - when browser sees response 302, checks `Location` response header for new URL. 
+            - 404: NOT FOUND
+            - 500: INTERNAL SERVER ERROR
+
+        - Response Headers 
+
+          - Common headers: 
+            - Content-Encoding: type of encoding used on data
+            - Server: name of server  
+            - Location: notify client of new resource location
+            - Content-Type: type of data response contains
+
+    **The most important parts of an HTTP response are:**
+      - status code
+      - headers
+      - message body, which contains the raw response data
+
+
+
 
 
 
