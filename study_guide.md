@@ -161,6 +161,36 @@
           - A communication end-point consisting of an IP Address and Port Number. 
         - Implementation:
           - instantiating socket-objects 
+            - UNIX Socket
+              - Communicating between local processes on machine
+            - Internet sockets (TCP/IP socket)
+              - mechanism for inter-process communication between networked processes usually on different machines.
+        
+      - Socket Connections
+      
+        - Connectionless System 
+          - One socket object defined by IP address of host computer and port assigned to particular process. 
+            - Socket object calls listen() method to wait for incoming messages matching IP/port pair. 
+              - Messages could come from anywhere at any time, and are processed as they arrive.
+
+        - Connection-Oriented System
+          - Socket object defined by host IP and process port (just like connectionless system)
+            - Socket object calls listen() method to wait for incoming messages matching IP/port pair. 
+          - When message arrives... 
+            - instantiate new socket object
+              - defined by local IP/Port number and the IP/Port number of the process/host that sent the message. 
+              - new socket listens exclusively for messages where all four pieces of information matched
+                - Combination of 4 pieces of information known as *four-tuple*. 
+
+        *Messages that do not match the four-tuple are still picket up by the original socket, which would then instantiate another new socket object for the new connection.*
+        
+          - Connection-oriented benefits: 
+            - dedicated virtual connection between specific processes on one host and specific processes on another. 
+              - Allows for implementing rules for managing communication
+                - order of messages
+                - acknowledgements
+                - retransmission
+            - rules effectively put in place to add more reliability to the communication. 
 
 
   
