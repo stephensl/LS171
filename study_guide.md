@@ -350,6 +350,10 @@
             
           - AJAX Key point
             - AJAX requests are just like normal requests: they are sent to the server with all the normal components of an HTTP request, and the server handles them like any other request. The only difference is that instead of the browser refreshing and processing the response, the response is processed by a callback function, which is usually some client-side JavaScript code.
+
+        - URL Parameters
+            - Though limited in utility due to max size and security concerns
+            - It's possible to send simple, limited data via URL parameters; this is one way in which we can simulate a stateful application.
             
 
   ### Client/Server Model and role of HTTP in model
@@ -650,11 +654,108 @@
 
 
   ## HTTP & Request/Response Cycle 
+
+    Client and Server (regardless of type of server/software) will communicate in much the same way..via HTTP
+      - Only specific functionality may vary based on use case. 
     
+    ### What happens when you enter a URL into a web browser?
+
+    1. Client enters URL in search bar. `http://espn.com/`
+    
+    
+    2. Browser generates `GET` request
+
+      - HTTP Request must include required: 
+        - METHOD
+          - `GET`, `POST`
+        - PATH
+          - identifies location on server
+        - HEADER
+          - `Host` header
+      
+      - Optional:
+        - Parameters
+        - other headers
+        - Body
+
+      - Omissions
+        - Domain name not included, though included in `Host` Header
+          - used to determine which server to send request to
+            - not part of request itself
+          - once connection has been created between client and server, domain name becomes redundant. 
+    
+
+    
+    3. Sends request to server over network (encapsulated through the lower layers and transported)
+
+
+    
+    4. Server receives request:
+      
+      - Performs tasks based on:  
+        - functionality of server
+        - software programming
+      
+      - Example: workflow for Ruby web application
+        1. Verify user session
+        2. Load tasks from database
+        3. Render HTML
+
+
+      
+      5. Server sends response 
+        - Status Line
+          - Status Code and Text
+          - `200 OK`
+        - Headers
+          - `Content-Type:text/html`
+        - Body
+          - optional
+          - html code used by browser to render page
+            - `<html><body>...` 
+
+
+        
+        6. Response received by client
+          - Checks `Content-Type` header
+            - acts accordingly
+              - Example: receiving HTML for webpage, will display for user. 
+
+
+  Required for HTTP Request/Response Messages
+
     Required HTTP Request Components: 
-      - Method
-      - URI (specifies resource via path and can include optional query strings) 
-      - Version of protocol being used.
+      - These components comprise the "start/request-line":
+        - Method
+        - Path 
+          - AKA "request uri"
+        - Version of protocol being used.
+      
+      - Host Header
+        - since HTTP/1.1
+
+    - Optional for Requests
+      - Parameters
+      - All other headers
+      - Body
+        
+
+    
+    
+    Required HTTP Response Components
+      - Status Line
+        - includes HTTP version, status code, and status message
+      
+    
+    
+    Optional for Response (kind of)
+        - Headers
+          - even if no data, must include blank line indicating end of headers
+
+    Optional for Response (for sure)
+        - Body
+
+      
 
 
     ### GET Requests
