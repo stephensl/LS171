@@ -250,7 +250,7 @@
   
     1. In-order delivery: data is received in the order that it was sent
       
-    2. Error detection: corrupt data is identified using a checksum
+    2. Error detection: corrupt data is identified using a checksum 
       
     3. Handling data loss: missing data is retransmitted based on acknowledgements and timeouts
       
@@ -655,6 +655,18 @@
 
   ## HTTP & Request/Response Cycle 
 
+  - The HTTP request/response cycle describes the process of a client sending an HTTP request to a server and receiving an HTTP response. 
+
+    1. The client sends an HTTP request to the server.
+    
+    2. The server processes the request. This may involve reading files, querying a database, executing server-side scripts, etc.
+    
+    3. The server sends an HTTP response back to the client. This response contains the requested resource (like a webpage), an error message, or some other information.
+    
+    4. The client processes the response. If the response contains a webpage, the browser will render the page for the user If the response indicates an error, the browser will display an error message.
+
+  *At its core, HTTP is a set of rules concerned with the syntax and structure of messages exchanged between applications.*
+
     Client and Server (regardless of type of server/software) will communicate in much the same way..via HTTP
       - Only specific functionality may vary based on use case. 
     
@@ -754,6 +766,8 @@
 
     Optional for Response (for sure)
         - Body
+
+
 
       
 
@@ -860,6 +874,7 @@
   - Building in HTTP is difficult
 
     ### Potential Issues
+      - Simplicity as text based protocol 
       - Stealing browser session id
         - Crafting message to server impersonating you
       - Searching cookies
@@ -872,19 +887,129 @@
 
 #### Protocol: Transport Layer Security (`TLS`)
 
-    - TLS is a cryptographic protocol used to increase security over computer networks. 
+    - TLS is a cryptographic protocol that provides for secure message exchange over an unsecure network.
 
     - The primary goal of the TLS protocol is to provide privacy, data integrity, and authenticity between two or more communicating computer applications.
       - Confidentiality: encryption 
+        - encoding message 
+      
       - Data Integrity: cryptographic functions/authentication codes
-      - Authenticity: digital certificates and asymmetric encryption
+        - detect whether message has been tampered with or faked.
+      
+      - Authentication: digital certificates and asymmetric encryption
+        - process to verify identity of particular party 
 
-  #### TLS Encryption
+  #### TLS Encryption 
 
-    - TLS uses a system of trusted certificates to establish an encrypted connection. 
-    - Certificates issued by certificate authorities (CAs), to help verify the identities of involved parties. 
-    - When a client and server communicate, they exchange these certificates to establish the authenticity of both parties, set up a secure line of communication, and exchange security keys prior to encryption.
-    - Once the secure connection is established, data transferred between the server and client is encrypted and secure from eavesdropping or tampering.
+  - Symmetric key Encryption
+      - sender and receiver share common key
+      - difficult to send over internet
+        - need way to encrypt the encryption key itself. 
+
+  - Asymmetric Key Encryption (Public key encryption)
+    - Uses pair of keys
+      - public
+        - used to encrypt
+      - private 
+        - used to decrypt
+
+    - Message encrypted with Public key can only be decrypted with private key. 
+
+
+    ##### TLS Handshake 
+      ** Process of setting up initial secure connection. **
+      - We want request and response of HTTP message to be encrypted.
+      - TLS uses combination of symmetric and asymmetric cryptography. 
+      - TLS assumes TCP being used at Transport Layer
+
+      ###### Key Points TLS Handshake Process
+        - Agree which version of TLS to use in establishing secure connection 
+        - Agree on various algorithms that will be included in Cipher Suite
+        - Enable exchange of symmetric keys used for message encryption.
+        
+        - TLS Handshake Performance 
+          - Complexity impacts performance 
+          - Can add up to two round trips of latency before transmitting application data 
+            - This is in addition to round trip resulting from the TCP Handshake
+
+      1. TLS Handshake begins with `ClientHello` message
+        - sent immediately after the `ACK`. 
+        
+        - Contains: 
+          - maximum version TLS protocol client can support
+          - list of Cipher Suites that client can use
+
+      
+      2. Upon receipt of `ClientHello` message, server responds with message.
+        
+        - Contains: 
+          - `ServerHello`
+            - sets protocol version and Cipher Suite, and other info.
+          - Certificate (contains public key)
+          - `ServerHelloDone` marker
+            - indicates do client that server is done with this step of handshake.
+
+        
+      3. Upon receipt of `ServerHelloDone`, initiates key exchange process. 
+        - process for server and client to securely obtain symmetric keys
+          - process varies depending on Cipher Suite decisions
+
+      Key Exchange (RSA)
+        - The client generates what's known as a 'pre-master secret', encrypts it using the server's public key, and sends it to the server.
+        - The server will receive the encrypted 'pre-master secret' and decrypt it using its private key.
+        - Both client and server will use the 'pre-master' secret, along with some other pre-agreed parameters, to generate the same symmetric key.
+        - As part of the communication which includes the ClientKeyExchange message (e.g. the pre-master secret), the client also sends a ChangeCipherSpec flag, which tells the server that encrypted communications should now start using the symmetric keys. 
+        - Additionally this communication includes a Finished flag to indicate that the client is now done with the TLS Handshake.
+
+
+
+        4. The server also sends a message with ChangeCipherSpec and Finished flags. The client and server can now begin secure communication using the symmetric key.
+
+
+  **Datagram Transport Layer Security (DTLS), based on TLS, used for UDP connections.**
+    
+    - Cipher Suite 
+      - set of ciphers
+      - used for key exchange, authentication, symmetric key encryption, and checking message integrity. 
+        - agreed on as part of TLS handshake
+
+    ##### TLS Authentication Certificates
+      - The certificate, and the Public Key it contains, are only one part of an overall system of authentication.
+
+
+        1. The server sends its certificate, which includes its public key.
+        
+        2. The server creates a 'signature' in the form of some data encrypted with the server's private key.
+        
+        3. The signature is transmitted in a message along with the original data from which the signature was created.
+        
+        4. On receipt of the message, the client decrypts the signature using the server's public key and compares the decrypted data to the original version.
+        
+        5. If the two versions match then the encrypted version could only have been created by a party in possession of the private key.
+
+  Following a process such as this, we can identify that the server which provided the certificate during the initial part of the TLS Handshake is in possession of the private key, and therefore the actual owner of the certificate.
+
+    Certificate Authorities are trustworthy sources of digital certificates. 
+      - https://launchschool.com/lessons/74f1325b/assignments/95e698ab
+
+
+      ###### TLS Encapsulation 
+        - OSI model defines TLS as Session Layer protocol
+          - Between Application Layer (HTTP) and Transport Layer (TCP)
+        
+        - Message Authentication Code (MAC)
+          - similar to checksum field in other PDUs with key difference in intention: 
+            - add layer of security by providing means of checking that message has not been altered or tampered with in transit. 
+              - implemented via hashing algorithm 
+
+      **Message Authentication Code (MAC)- hashing algorithm steps**
+    
+    The sender will create what's called a digest of the data payload. This is effectively a small amount of data derived from the actual data that will be sent in the MAC field. The digest is created using a specific hashing algorithm combined with a pre-agreed hash value. This hashing algorithm to be used and hash value will have been agreed as part of the TLS Handshake process when the Cipher Suite is negotiated.
+
+    The sender will then encrypt the data payload using the symmetric key (as described earlier in the Encryption section), encapsulate it into a TLS record, and pass this record down to the Transport layer to be sent to the other party.
+
+    Upon receipt of the message, the receiver will decrypt the data payload using the symmetric key. The receiver will then also create a digest of the payload using the same algorithm and hash value. If the digest created by the receiver matches the digest received in the MAC field, this confirms the integrity of the message.
+
 
 
 
@@ -958,37 +1083,170 @@
 
 
 
+Bash conditionals/loops: https://launchschool.com/lessons/0e67d1ce/assignments/a0f37a79
+
+Netcat is a network utility for reading and writing data across network connections using TCP or UDP.
+
+The intention of our HTTP server is to conduct some processing of messages received from the client, and, based on certain rules that we define within the logic of the HTTP server program, issue an appropriate response.
 
 
 
+# Summaries 
+
+## The Internet
 
 
 
+    The internet is a vast network of networks. It is comprised of both the network infrastructure itself (devices, routers, switches, cables, etc) and the protocols that enable that infrastructure to function.
+
+    Protocols are systems of rules. Network protocols are systems of rules governing the exchange or transmission of data over a network.
+
+    Different types of protocol are concerned with different aspects of network communication. It can be useful to think of these different protocols as operating at particular 'layers' of the network.
+
+    Encapsulation is a means by which protocols at different network layers can work together.
+
+    Encapsulation is implemented through the use of Protocol Data Units (PDUs). The PDU of a protocol at one layer, becomes the data payload of the PDU of a protocol at a lower layer.
+
+    The physical network is the tangible infrastructure that transmits the electrical signals, light, and radio waves which carry network communications.
+
+    Latency is a measure of delay. It indicates the amount of time it takes for data to travel from one point to another.
+
+    Bandwidth is a measure of capacity. It indicates the amount of data that can be transmitted in a set period of time.
+
+    Ethernet is a set of standards and protocols that enables communication between devices on a local network.
+
+    Ethernet uses a Protocol Data Unit called a Frame.
+
+    Ethernet uses MAC addressing to identify devices connected to the local network.
+
+    The Internet Protocol (IP) is the predominant protocol used for inter-network communication.
+
+    There are two versions of IP currently in use: IPv4 and IPv6.
+
+    The Internet Protocol uses a system of addressing (IP Addressing) to direct data between one device and another across networks.
+
+    IP uses a Protocol Data Unit called a Packet.
 
 
 
-
-
-<!-- It's Christmas time in Whoville, and Cindy Lou has just received her ceremonial apple during the feast. Little did the other Whovillians know, but Cindy has been on the Keto diet for the past six months, and can't possibly introduce that blood sugar spike to her system. 
-
-In her benevolence, she has decided to send the apple to her ole pal the Grinch as a gesture of goodwill. Her only concern is that the apple will freeze on the way up Mt. Crumpit, and if the Grinch receives a frozen apple, it may be misconstrued as a sign of hostility from the Whos. It is important that the apple reach the Grinch reliably, and free of frost corruption. 
-
-Luckily, the physics of life on a snowflake have enabled fruit products to be transported reliably and securely over the Winternet, which is facilitated by increasingly larger Whoville civil servants.
-
-The main requirement for transport over the Winternet is that the fruit product be processed and packaged appropriately for the journey. Fortunately for Cindy Lou, this can be done from the comfort of her seat at the feast. 
-
-Let's see how this process works and what it teaches us about data moving through layers of a network: 
-
-  - Step 1: Cindy has the apple in her hands. She writes a nice card to accompany the gift, and is ready to send it. The apple and card are arranged nicely, and packaged for transport.  
-
-  This is the Application Layer. We are concerned with the structure of the message and the data it should contain. Cindy is sending the apple to the Grinch as the data payload in a HTTP POST Request. The Grinch acts as the server who will receive the data/resource. The way in which the data is processed is up to the Grinch.
-
-
-  - Step 2: The gift is received by the first helper who whispers some magic words about reliability and in-order delivery before placing the received package in a larger container with information about the 
-
-  This is the Transport Layer -->
+## Transport Layer
 
 
 
+    Multiplexing and demultiplexing provide for the transmission of multiple signals over a single channel
 
+    Multiplexing is enabled through the use of network ports
+
+    Network sockets can be thought of as a combination of IP address and port number
+
+    At the implementation level, network sockets can also be socket objects
+
+    The underlying network is inherently unreliable. If we want reliable data transport we need to implement a system of rules to enable it.
+
+    TCP is a connection-oriented protocol. It establishes a connection using the Three-way-handshake
+
+    TCP provides reliability through message acknowledgement and retransmission, and in-order delivery.
+
+    TCP also provides Flow Control and Congestion Avoidance
+
+    The main downsides of TCP are the latency overhead of establishing a connection, and the potential Head-of-line blocking as a result of in-order delivery.
+
+    UDP is a very simple protocol compared to TCP. It provides multiplexing, but no reliability, no in-order delivery, and no congestion or flow control.
+
+    UDP is connectionless, and so doesn't need to establish a connection before it starts sending data
+
+    Although it is unreliable, the advantage of UDP is speed and flexibility.
+
+
+  ## HTTP Introduction 
+
+
+
+    The Domain Name System (DNS) is a distributed database which maps a domain name such as google.com to an IP Address such as 216.58.213.14.
+
+    A URI is an identifier for a particular resource within an information space.
+
+    A URL is a subset of URI, but the two terms are often used interchangeably.
+
+    URL components include the scheme, host (or hostname), port, path, and query string.
+
+    Query strings are used to pass additional data to the server during an HTTP Request. They take the form of name/value pairs separated by an = sign. Multiple name/value pairs are separated by an & sign. The start of the query string is indicated by a ?.
+
+    URL encoding is a technique whereby certain characters in a URL are replaced with an ASCII code.
+
+    URL encoding is used if a character has no corresponding character in the ASCII set, is unsafe because it is used for encoding other characters, or is reserved for special use within the url.
+
+    A single HTTP message exchange consists of a Request and a Response. The exchange generally takes place between a Client and a Server. The client sends a Request to the server and the server sends back a Response.
+
+    An HTTP Request consists of a request line, headers, and an optional body.
+
+    An HTTP Response consists of a status line, optional headers, and an optional body.
+
+    Status codes are part of the status line in a Response. They indicate the status of the request. There are various categories of status code.
+
+    HTTP is a stateless protocol. This means that each Request/ Response cycle is independent of Request and Responses that came before or those that come after.
+
+    Statefulness can be simulated through techniques which use session IDs, cookies, and AJAX.
+
+    HTTP is inherently insecure. Security can be increased by using HTTPS, enforcing Same-origin policy, and using techniques to prevent Session Hijacking and Cross-site Scripting.
+
+
+
+  ## Working with HTTP 
+
+
+
+    HTTP is a text-based protocol. HTTP Request and Responses involve sending text between the client and server
+
+    In order for the protocol to work, the Request and Response must be structured in such a way that both the client and the server can understand them.
+
+    With HTTP/1.1, the end of the headers is indicated by an empty line.
+
+    The Content-Length header can be used to indicate the size of the body. This can help determine where the HTTP message should end.
+
+
+
+  ## Transport Layer Security (TLS)
+
+
+
+    HTTP Requests and Responses are transferred in plain text; as such they are essentially insecure.
+
+    We can use the Transport Layer Security (TLS) Protocol to add security to HTTP communications.
+
+    TLS encryption allows us to encode messages so that they can only be read by those with an authorized means of decoding the message
+
+    TLS encryption uses a combination of Symmetric Key Encryption and Asymmetric Key Encryption. Encryption of the initial key exchange is performed asymmetrically, and subsequent communications are symmetrically encrypted.
+
+    The TLS Handshake is the process by which a client and a server exchange encryption keys.
+
+    The TLS Handshake must be performed before secure data exchange can begin; it involves several round-trips of latency and therefore has an impact on performance.
+
+    A cipher suite is the agreed set of algorithms used by the client and server during the secure message exchange.
+
+    TLS authentication is a means of verifying the identity of a participant in a message exchange.
+
+    TLS Authentication is implemented through the use of Digital Certificates.
+
+    Certificates are signed by a Certificate Authority, and work on the basis of a Chain of Trust which leads to one of a small group of highly trusted Root CAs.
+
+    The server's certificate is sent during the TLS Handshake process.
+
+    TLS Integrity provides a means of checking whether a message has been altered or interfered with in transit.
+
+    TLS Integrity is implemented through the use of a Message Authentication Code (MAC).
+
+
+  ## Evolution of Network Technologies 
+
+
+    HTTP has changed considerably over the years, and is continuing to change.
+
+    Many of the changes to HTTP are focused on improving performance in response to the ever increasing demands of modern networked applications.
+
+    Latency has a big impact on the performance of networked applications. As developers and software engineers we need to be aware of this impact, and try to mitigate against it through the use of various optimizations.
+
+    In building networked applications, there are tools and techniques available to us that work around or go beyond the limitations of basic HTTP request-response functionality.
+
+    For certain use cases a peer-to-peer architecture may be more appropriate than a client-server architecture.
 
