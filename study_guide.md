@@ -479,6 +479,10 @@
 
 # HTTP 
   - Functioning of web as combination of multiple technologies.
+  - HTTP was designed for simplicity and interoperability
+    - This simplicity makes it difficult to develop and secure web applications
+      - Statelessness: challenging to implement features that depend on statefulness
+      - Lack of security: no built in security mechanism
 
 ## Application Layer
   - Not application itself
@@ -535,13 +539,15 @@
     - Uniform Resource Locator 
       - similar to an house address or phone number needed to communicate with friend
       - most frequently used aspect of general Uniform Resource Identifier (URI) concept, which specifies how resources located.
+      - URLs are a subset of URIs that in addition to identifying resource, provide network location
 
     ### URL Components with example: `http://www.example.com:88/home?item=book`
       * at minimum, must contain scheme and host. 
 
       - `http:` 
         - Scheme
-          - tells web client how to access resource
+          - defines which family of protocols to use to access resource
+          - scheme names should be lowercase, protocol names uppercase.
             - http:
             - ftp:
             - mailto:
@@ -566,6 +572,25 @@
         - Query String (optional)
           - comprised of Query Parameters 
           - used to send data to the server
+
+      #### URLs and Filepaths
+        - Early days of web, path represented a physical file location on Web server.
+          
+          - Much of the content generated dynamically now
+            - Dynamic generation happens on server side via: 
+              - frameworks/apps combine templates with stored data to produce HTML pages, which form the body of an HTTP response. 
+            
+            - Client side frameworks
+              - less common
+                - HTTP response contains raw data
+                - Data manipulated by app running in browser before rendered
+
+          - NOTES on URL path 
+            - Although these server-side and client-side frameworks differ in their implementation, one thing they have in common is that the way the path portion of the URL is used is determined by the application logic, and doesn't necessarily bear any relationship to an underlying file structure on the server.
+
+            - The way that the path is used will vary according to the specific implementation of the application or framework, but often involves URL pattern-matching to match the path to a pre-defined 'route' which then executes some specific logic.
+
+
         
       #### Query Strings/Parameters 
         - Usually only used in HTTP GET requests 
@@ -697,13 +722,142 @@
       - message body, which contains the raw response data
 
 
+  ## Server Side
+    - Web Server
+      - serves web pages, static assets, files, images, css, js, etc. 
+      - role is simple retrieval for resources NOT requiring processing
+    
+    - Application Server
+      - Server side code
+        - Application and/or Business Logic
+      - Utilizes Data Store to access persistent information
 
+    - Data Store
+      - persistent data store
+      - utilized to induce statefulness
+
+
+  #### HTTP/TCP/IP Interaction
+    - HTTP is relying on a TCP/IP connection (most of the time).
+    
+    1. The client (usually a web browser) establishes a TCP connection with the server. This is done using the TCP/IP protocol, which is responsible for ensuring the reliable transmission of data over the internet.
+
+    2. Once the TCP connection is established, the client and server perform the SSL/TLS handshake over the TCP connection. This handshake involves the exchange of encryption keys and the establishment of a secure SSL/TLS session.
+
+    3. Once the secure session is established, HTTP data is transmitted over this secure session. The HTTP data is encrypted by SSL/TLS before being sent over the TCP connection.
+
+    - In an HTTPS connection, both TCP and SSL/TLS are used. 
+      - TCP = actual transmission of data packets, 
+      - SSL/TLS = secure the HTTP data that is being transmitted.
 
 
 
 
 
   ## Security 
+
+  - Building in HTTP is difficult
+
+    ### Potential Issues
+      - Stealing browser session id
+        - Crafting message to server impersonating you
+      - Searching cookies
+      - Packet sniffing
+
+      HTTP is just text. 
+
+      ### Secure HTTP (HTTPS)
+        - Encryption prior to transport over network.
+
+#### Protocol: Transport Layer Security (`TLS`)
+
+    - TLS is a cryptographic protocol used to increase security over computer networks. 
+
+    - The primary goal of the TLS protocol is to provide privacy, data integrity, and authenticity between two or more communicating computer applications.
+      - Confidentiality: encryption 
+      - Data Integrity: cryptographic functions/authentication codes
+      - Authenticity: digital certificates and asymmetric encryption
+
+  #### TLS Encryption
+
+    - TLS uses a system of trusted certificates to establish an encrypted connection. 
+    - Certificates issued by certificate authorities (CAs), to help verify the identities of involved parties. 
+    - When a client and server communicate, they exchange these certificates to establish the authenticity of both parties, set up a secure line of communication, and exchange security keys prior to encryption.
+    - Once the secure connection is established, data transferred between the server and client is encrypted and secure from eavesdropping or tampering.
+
+
+
+  #### Same Origin Policy 
+    - Unrestricted interaction between resources originating from the same origin, but restricts certain interactions between resources originating from different origins. 
+
+      - Origin: scheme, host, and port
+        - http://mysite.com/doc1 and http://mysite.com/doc2 have SAME origin.
+          - both have different origin than https://mysite.com/doc3 (different scheme)
+
+          - Example: 
+            - If a script from http://espn.com tries to make a request to http://github.com, the browser would recognize this as a cross-origin request. 
+
+            *The origin of a script is determined by the URL of the document that loaded it, not where the script itself was written or where it's being executed. So if a script is loaded as part of a webpage from http://espn.com, its origin is http://espn.com, even if the script itself was written by a third-party advertiser or hosted on a different server. Script is confined to the context of the webpage that loaded it.*
+
+
+
+  #### Session Hijacking
+
+    - Session plays important role in simulating statefulness, but comes with security risks. 
+      
+      - session id: random string and comes in form of cookie stored on client
+        - included in requests
+        - allows server to recognize session
+          - ex. not having to re-authenticate every time visit page
+
+    - Attack: 
+      - If attacker knows session id, can access web applications with same access as the user. 
+        - user will not even know attacker accessing session without knowing username/password
+
+    - Defense:
+      
+      - Resetting sessions
+        - authentication
+          - successful login must cancel old session id, and create new one
+        - Commonly implemented before accessing sensitive information
+          - Re-authenticate
+          - Session ID changes
+          - Attacker cannot access with old session id
+
+
+      - Session Expiration
+        - setting expiration time on sessions to limit window of using same session id
+
+      - HTTPS across entire application
+        - minimize chance of leaking session id 
+
+          
+
+
+  #### Cross Site Scripting(XSS)
+      
+  - Vulnerability: 
+    - allowing user to input HTML or JavaScript that is displayed on site directly
+      - POST to server.
+    - If server side code does not sanitize input, user input added to the page contents and the browser will interpret and execute the HTML/JS files. 
+
+    - Attacker could use JavaScript to access session id of every visitor, then impersonate them later. 
+      - Would PASS Same Origin Policy! (origin is url of page that loaded it)
+
+    
+  - Defense: 
+    - Always sanitize user input. 
+      - Enforce rules on problematic input
+    
+    - Escape all user input data when displaying it
+      - If need to input HTML/JS, escape it so browser does not interpret it as code.
+        - Use HTML Entities 
+          - combinations of ASCII characters used to replace HTML character
+            - tells client to display character as is, and not process it. 
+
+
+
+
 
 
 
