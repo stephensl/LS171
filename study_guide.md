@@ -1250,3 +1250,77 @@ The intention of our HTTP server is to conduct some processing of messages recei
 
     For certain use cases a peer-to-peer architecture may be more appropriate than a client-server architecture.
 
+
+
+
+### Additional Notes 
+
+# Networking Foundations Study Guide
+
+## The Internet
+
+### Broad understanding of what the internet is and how it works
+The internet is a "network of networks" that allows networks all over the world to connect and share information. It provides the physical and logical infrastructure that enables inter-network communication. Protocols are established and agreed upon rules that support successful communication. They define how data is formatted, transmitted, received, and acknowledged over a network. Different protocols are utilized at various points during the communication process to ensure that information can be sent, received, and understood properly.
+
+### Characteristics of the physical network (latency and bandwidth)
+The physical network is limited by physical laws and rules such as the speed of light and the distance radio waves can reach. The two main characteristics in terms of performance are latency, which is the measure of the time it takes for data to travel from sender to receiver, and bandwidth, which is the measure of the amount of data that can be sent in a particular unit of time.
+
+### Basic understanding of lower-level protocols
+Lower-level protocols like the Ethernet Protocol at the Data Link/Link layer define how devices on a network are identified (MAC Addresses) and how data should be formatted for transmission (Ethernet frames). The focus is on communication between devices on the same local network.
+
+### Understanding of IP addresses and port numbers
+IP addresses are logical, unlike MAC Addresses. They are assigned as required to devices as they join a network. Port numbers are identifiers for processes running on a host. The combination of IP Address and Port number enables end-to-end communication between specific applications on different devices.
+
+### How DNS works
+The Domain Name System (DNS) is a distributed database that translates domain names to IP addresses to be used to make requests to servers. DNS servers form a large, hierarchical network that routes to the DNS server containing the corresponding IP address.
+
+### Client-server model and the role of HTTP as a protocol within that model
+In the client-server model, the client (most commonly a web browser) is responsible for issuing HTTP requests and processing HTTP responses in a user-friendly manner. The server accepts the request and issues a response back. HTTP is a stateless protocol, meaning each request/response pair is completely independent of the previous one.
+
+## TCP & UDP
+
+### Clear understanding of TCP and UDP protocols, similarities, and differences
+TCP provides reliable data transfer, data integrity, de-duplication, in-order delivery, and retransmission of lost data. It utilizes data encapsulation and multiplexing. UDP, on the other hand, is a connectionless protocol that can just begin sending data. It provides faster and more flexible transmission of data with acceptable occasional data loss.
+
+### Broad understanding of the three-way handshake and its purpose
+The three-way handshake in TCP involves the sender sending a SYN message, the receiver sending a SYN and ACK flags set to 1, and the sender sending an ACK flag set to 1. This handshake is used to synchronize the sequence numbers used during the connection.
+
+### Broad understanding of flow control and congestion avoidance
+Flow control in TCP prevents the sender from overwhelming the receiver with too much data at once. Congestion avoidance uses data loss as a feedback mechanism to detect and avoid congestion, which may reduce the size of the transmission window accordingly.
+
+## URLs
+
+### Components of a URL, including query strings
+A Uniform Resource Identifier (URI) is a string of characters identifying a particular resource. It is used in the structure of a URL.
+
+### Constructing a valid URL
+A valid URL is constructed by combining the protocol (HTTP), the domain name, and optionally the path to a specific resource.
+
+### Understanding of URL encoding and its```markdown
+cases
+URL encoding is used to convert characters into a format that can be transmitted over the Internet. It replaces unsafe ASCII characters with a "%" followed by two hexadecimal digits.
+
+## HTTP and Request/Response Cycle
+
+### Explanation of HTTP requests and responses and identification of their components
+HTTP requests and responses are text-based messages sent between the client and the server. The request includes the method (GET, POST, etc.), the URL, and optional headers and body. The response includes the status code, headers, and the body which contains the requested resource.
+
+### Description of the HTTP request/response cycle
+The HTTP request/response cycle begins when the client sends a request to the server. The server processes the request and sends a response back to the client. The client then processes the response.
+
+### Explanation of status codes and examples of different status code types
+HTTP status codes are three-digit numbers that indicate the status of the HTTP response. They are grouped into five classes: 1xx (informational), 2xx (successful), 3xx (redirection), 4xx (client errors), and 5xx (server errors).
+
+### Understanding of 'state' in the context of the web and techniques used to simulate state
+HTTP is a stateless protocol, meaning each request/response pair is completely independent of the previous one. To simulate statefulness in web applications, techniques like sessions, cookies, and AJAX (Asynchronous JavaScript) are used.
+
+### Difference between GET and POST and when to choose each
+GET is used to request data from a specified resource, while POST is used to send data to a server to create/update a resource. GET is used when the request is idempotent (it can be made many times without different outcomes), while POST is used when the request changes the server state.
+
+## Security
+
+### Understanding of various security risks affecting HTTP and measures to mitigate them
+HTTP lacks built-in security mechanisms, making it vulnerable to various security risks such as eavesdropping, man-in-the-middle attacks, and data tampering. Measures to mitigate these risks include using HTTPS (HTTP Secure), which encrypts the data sent between the client and the server, and implementing secure coding practices.
+
+### Awareness of different services that TLS can provide, and a broad understanding of each of those services
+Transport Layer Security (TLS) provides services such as encryption to protect data integrity and confidentiality, and authentication to verify the identity of the parties in communication. It also provides secure key exchange mechanisms to securely establish encryption keys before communication begins.
