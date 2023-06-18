@@ -96,7 +96,7 @@
       - varies across the network, not constant. 
       - bandwidth the connection receives is the lowest amount at a particular point in the connection. 
 
-
+  
 
   ### Lower level protocol functions.
   
@@ -682,6 +682,8 @@
           - `GET`, `POST`
         - PATH
           - identifies location on server
+        - HTTP Version 
+          - Example: HTTP/1.1
         - HEADER
           - `Host` header
       
